@@ -3,25 +3,22 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { scrapeUrlAction, ScrapedData } from '@/app/server/action';
+import { scrapeUrlAction, ScrapedData, saveBookmarkAction } from '@/app/server/action';
+import { useSession, signIn, signOut } from "next-auth/react";
 
 // 아이콘을 위한 간단한 SVG 컴포넌트들
 const LinkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>;
 const LoaderIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>;
 const GoogleIcon = () => <svg className="w-5 h-5 mr-2" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 76.2c-27.3-26.2-63.4-42.4-105.7-42.4-84.9 0-153.2 68.3-153.2 153.2s68.3 153.2 153.2 153.2c92.8 0 135-61.2 140.8-92.6H248v-96.2h238.4c2.6 12.9 4.1 26.4 4.1 40.8z"></path></svg>;
 
-// 임시 사용자 정보 타입을 정의합니다.
-interface User {
-  name: string;
-  image: string;
-}
-
 export default function HomePage() {
   const [url, setUrl] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [scrapedData, setScrapedData] = useState<ScrapedData | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session } = useSession();
+  const user = session?.user;
+
 
   /**
    * 폼 제출 시 실행될 함수
@@ -51,9 +48,23 @@ export default function HomePage() {
 
   const handleSave = async () => {
     if (!scrapedData) return;
-    alert('저장 기능 구현 필요!\n이 데이터를 Prisma를 사용해 DB에 저장하는 Server Action을 호출합니다.');
-    setScrapedData(null);
-    setUrl('');
+
+    if (!user) {
+      setError('북마크를 저장하려면 로그인이 필요합니다.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    const result : { success: boolean; error?: string } = await saveBookmarkAction(scrapedData);
+
+    if (result.success) {
+      setScrapedData(null);
+      setUrl('');
+    } else {
+      setError(result.error ?? '알 수 없는 오류가 발생했습니다.');
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -64,7 +75,7 @@ export default function HomePage() {
               <div className="flex items-center space-x-4">
                 <img src={user.image} alt={user.name} className="w-10 h-10 rounded-full" />
                 <button
-                    onClick={() => setUser(null)}
+                    onClick={() => signOut()}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50"
                 >
                   로그아웃
@@ -72,7 +83,7 @@ export default function HomePage() {
               </div>
           ) : (
               <button
-                  onClick={() => setUser({ name: '홍길동', image: 'https://placehold.co/40x40/E4E4E7/71717A?text=G' })}
+                  onClick={() => signIn('google', { prompt: 'select_account' })}
                   className="inline-flex items-center px-4 py-2 font-semibold text-gray-800 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors"
               >
                 <GoogleIcon />
@@ -96,7 +107,7 @@ export default function HomePage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://example.com"
-                className="w-full pl-12 pr-32 py-4 text-lg bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                className="w-full pl-12 pr-32 py-4 text-lg text-black bg-white border-2 border-gray-200 rounded-xl shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
                 disabled={isLoading}
             />
             <button
