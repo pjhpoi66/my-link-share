@@ -83,3 +83,41 @@ export async function saveBookmarkAction(
   }
 }
 
+
+export async function deleteBookmarkAction(
+    bookmarkId: any
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user?.id) {
+    return {success: false, error: '로그인이 필요합니다.'};
+  }
+
+  if (!bookmarkId) {
+    return {success: false, error: '삭제할 북마크 ID가 필요합니다.'};
+  }
+
+  try {
+    // 북마크 삭제 전에 해당 북마크가 현재 사용자의 것인지 확인
+    const bookmark = await prisma.bookmark.findUnique({
+      where: {id: bookmarkId},
+    });
+
+    if (!bookmark) {
+      return {success: false, error: '북마크를 찾을 수 없습니다.'};
+    }
+
+    if (bookmark.userId !== session.user.id) {
+      return {success: false, error: '삭제 권한이 없습니다.'};
+    }
+
+    await prisma.bookmark.delete({
+      where: {id: bookmarkId},
+    });
+
+    return {success: true};
+  } catch (error) {
+    console.error('Failed to delete bookmark:', error);
+    return {success: false, error: '북마크 삭제 중 오류가 발생했습니다.'};
+  }
+}

@@ -1,7 +1,8 @@
-import NextAuth from 'next-auth';
-import { authOptions } from '@/lib/auth'; // 방금 만든 인증 설정 파일을 가져옵니다.
+// app/api/auth/[...nextauth]/route.ts
 
-// NextAuth 함수에 인증 설정을 전달하여 핸들러를 생성합니다.
+import NextAuth from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
 const handler = NextAuth(authOptions);
 
 // GET과 POST 요청에 대해 동일한 핸들러를 export 합니다.
