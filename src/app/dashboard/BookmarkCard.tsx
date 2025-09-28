@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteBookmarkAction } from '@/app/server/action'
 import toast from "react-hot-toast";
-
+import Image from 'next/image';
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/><path d="m10 11 2 2m-2 0 2-2"/></svg>;
 
 interface BookmarkCardProps {
@@ -19,12 +19,13 @@ export default function BookmarkCard({ bookmark }: BookmarkCardProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imgSrc, setImgSrc] = useState(bookmark.image || 'https://placehold.co/300x200/E4E4E7/71717A?text=No+Image');
 
   const handleDelete = () => {
     toast((t) => (
         <div className="flex flex-col items-center gap-3 p-2">
           <p className="font-semibold text-center">
-            '<span className="font-bold text-indigo-600 truncate max-w-xs inline-block">{bookmark.title}</span>'
+            &apos;<span className="font-bold text-indigo-600 truncate max-w-xs inline-block">{bookmark.title}</span>&apos;
             <br />
             북마크를 정말 삭제하시겠습니까?
           </p>
@@ -71,14 +72,13 @@ export default function BookmarkCard({ bookmark }: BookmarkCardProps) {
   return (
       <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col group relative">
         <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="block">
-          <img
-              className="h-40 w-full object-cover"
-              src={bookmark.image || 'https://placehold.co/300x200/E4E4E7/71717A?text=No+Image'}
+          <Image
+              src={imgSrc}
               alt={bookmark.title}
-              // 5. 이미지 로딩 실패 시 에러를 처리하는 onError 이벤트 핸들러입니다.
-              onError={(e) => {
-                e.currentTarget.onerror = null;
-                e.currentTarget.src = 'https://placehold.co/300x200/E4E4E7/71717A?text=No+Image';
+              fill
+              className="object-cover"
+              onError={() => {
+                setImgSrc('https://placehold.co/300x200/E4E4E7/71717A?text=No+Image');
               }}
           />
         </a>

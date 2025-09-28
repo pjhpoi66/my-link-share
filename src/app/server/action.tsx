@@ -35,7 +35,7 @@ export async function scrapeUrlAction(url: string): Promise<ScrapeResult> {
       try {
         const pageUrl = new URL(url);
         imageUrl = new URL(image, pageUrl.origin).href;
-      } catch (e) {
+      } catch {
         imageUrl = null;
       }
     }
@@ -85,7 +85,7 @@ export async function saveBookmarkAction(
 
 
 export async function deleteBookmarkAction(
-    bookmarkId: any
+    bookmarkId: number
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getServerSession(authOptions);
 
