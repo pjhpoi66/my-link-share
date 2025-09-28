@@ -1,0 +1,22 @@
+name: Deploy Frontend to Dev
+
+on:
+  push:
+    branches: [ "master" ] # main 브랜치에 push될 때 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Dev
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/pjhpoi66/link-saver
+            git pull
+            npm install
+            npm run build
+            pm2 startOrRestart ecosystem.config.js
