@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useSession } from 'next-auth/react';
 import { scrapeUrlAction, saveBookmarkAction, ScrapedData } from '@/app/server/action';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 const LinkIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg>;
 const LoaderIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>;
@@ -74,7 +75,19 @@ export default function HomePage() {
                 {scrapedData && (
                     <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in-up">
                       <div className="md:flex">
-                        {scrapedData.image && ( <div className="md:flex-shrink-0"><img className="h-48 w-full object-cover md:w-48" src={scrapedData.image} alt={scrapedData.title} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src='https://placehold.co/300x200/E4E4E7/71717A?text=No+Image'; }} /></div> )}
+                        {scrapedData.image && (
+                            <div className="md:flex-shrink-0 relative h-48 md:w-48 w-full">  {/* 이미지 컨테이너 수정 */}
+                              <Image
+                                  src={scrapedData.image}
+                                  alt={scrapedData.title}
+                                  fill
+                                  className="object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'https://placehold.co/300x200/E4E4E7/71717A?text=No+Image';
+                                  }}
+                              />
+                            </div>
+                        )}
                         <div className="p-8 flex flex-col justify-between flex-grow">
                           <div>
                             <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{(() => { try { return new URL(scrapedData.url).hostname; } catch { return ''; } })()}</div>

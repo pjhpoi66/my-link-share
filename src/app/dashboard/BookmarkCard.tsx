@@ -71,17 +71,19 @@ export default function BookmarkCard({ bookmark }: BookmarkCardProps) {
 
   return (
       <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col group relative">
-        <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="block">
-          <Image
-              src={imgSrc}
-              alt={bookmark.title}
-              fill
-              className="object-cover"
-              onError={() => {
-                setImgSrc('https://placehold.co/300x200/E4E4E7/71717A?text=No+Image');
-              }}
-          />
-        </a>
+        <div className="relative h-48 w-full">  {/* 이미지 컨테이너 추가 */}
+          <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="block h-full">
+            <Image
+                src={imgSrc}
+                alt={bookmark.title}
+                fill
+                className="object-cover"
+                onError={() => {
+                  setImgSrc('https://placehold.co/300x200/E4E4E7/71717A?text=No+Image');
+                }}
+            />
+          </a>
+        </div>
         <div className="p-4 flex flex-col flex-grow">
           <h3 className="font-semibold text-lg mb-1 truncate">
             <a href={bookmark.url} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 transition-colors">
