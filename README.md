@@ -51,6 +51,10 @@ git clone https://github.com/pjhpoi66/my-link-share.git
 ```bash
 npm install
 ```
+데이터베이스 마이그레이션
+```bash
+npx prisma migrate dev
+````
 
 환경 변수 설정:
 프로젝트 루트에 .env.local 파일을 생성하고 아래 내용을 추가합니다. 이 주소는 로컬에서 실행 중인 백엔드 API 서버를 가리켜야 합니다.
