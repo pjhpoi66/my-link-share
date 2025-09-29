@@ -102,7 +102,7 @@ export async function saveBookmarkAction(
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return { success: false, error: '이미 저장된 링크입니다.' };
     }
-    return { success: false, error: '북마크 저장 중 오류가 발생했습니다.' };
+    return { success: false, error: '북마크 저장 중 오류가 발생했습니다. ' };
   }
 }
 
