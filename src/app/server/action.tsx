@@ -61,14 +61,16 @@ export async function saveBookmarkAction(
     return { success: false, error: '로그인이 필요합니다.' };
   }
 
+  let tagNames = ['tag1', 'tag2'];
+
   // 3. 쉼표로 구분된 태그 문자열을 파싱하고, 공백 제거, 소문자 변환, 빈 값 필터링을 수행합니다.
-  const tagNames = tagsString
+  tagNames = tagsString
       ? tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0)
       : [];
 
   try {
     //    (하나라도 실패하면 모든 작업이 롤백되어 데이터 일관성을 보장합니다.)
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       //    Promise.all을 사용해 모든 태그 작업을 병렬로 처리하여 성능을 높입니다.
       const tagOperations = tagNames.map(name =>
           tx.tag.upsert({
