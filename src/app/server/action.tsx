@@ -139,7 +139,6 @@ export async function updateBookmarkAction(
       : [];
 
   try {
-    // 수정하려는 북마크가 현재 사용자의 것인지 확인
     const bookmark = await prisma.bookmark.findUnique({
       where: { id: bookmarkId },
     });

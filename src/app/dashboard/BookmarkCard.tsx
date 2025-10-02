@@ -6,7 +6,6 @@ import {useRouter} from 'next/navigation';
 import toast from 'react-hot-toast';
 import {deleteBookmarkAction, updateBookmarkAction} from '@/app/server/action';
 import Link from 'next/link';
-import Image from "next/image";
 
 
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -199,7 +198,6 @@ export default function BookmarkCard({bookmark}: BookmarkCardProps) {
                 }
               })()}
             </span>
-              {/* 6. 수정 및 삭제 버튼 그룹을 추가합니다. */}
               <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                     onClick={() => setIsEditing(true)} // 수정 버튼 클릭 시 모달을 엽니다.
@@ -223,7 +221,6 @@ export default function BookmarkCard({bookmark}: BookmarkCardProps) {
               className="text-sm text-gray-600">삭제 중...</span></div>)}
         </div>
 
-        {/* 7. isEditing 상태가 true일 때만 수정 모달을 렌더링합니다. */}
         {isEditing && (
             <EditModal
                 bookmark={bookmark}

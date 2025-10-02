@@ -42,7 +42,7 @@ export default function HomePage() {
           success: () => {
             setScrapedData(null);
             setUrl('');
-            setTags(''); // 저장 성공 후 태그 입력창을 초기화합니다.
+            setTags('');
             return '북마크가 저장되었습니다!';
           },
           error: (err) => err.message || '저장에 실패했습니다.',
