@@ -32,6 +32,13 @@ export default async function DashboardPage({
       OR: [
         { title: { contains: searchTerm, mode: Prisma.QueryMode.insensitive } }, // 제목 검색 (대소문자 무시)
         { description: { contains: searchTerm, mode: Prisma.QueryMode.insensitive } }, // 설명 검색 (대소문자 무시)
+        {
+          tags: {
+            some: {
+              name: { contains: searchTerm, mode: Prisma.QueryMode.insensitive },
+            },
+          },
+        }
       ],
     }),
     ...(filterTag && {
@@ -42,7 +49,6 @@ export default async function DashboardPage({
       },
     }),
   };
-
 
   const bookmarks = await prisma.bookmark.findMany({
     where: whereClause, // 동적으로 생성된 where 조건을 사용합니다.

@@ -17,7 +17,6 @@ type ScrapeResult =
     | { success: true; data: ScrapedData }
     | { success: false; error: string };
 
-// scrapeUrlAction 함수는 기존과 동일합니다.
 export async function scrapeUrlAction(url: string): Promise<ScrapeResult> {
   if (!url) { return { success: false, error: 'URL이 제공되지 않았습니다.' }; }
   try {
@@ -47,12 +46,11 @@ export async function scrapeUrlAction(url: string): Promise<ScrapeResult> {
 /**
  * 스크래핑된 북마크 데이터를 데이터베이스에 저장하는 Server Action
  * @param bookmarkData - 저장할 북마크 데이터
- * @param tagsString - 쉼표로 구분된 태그 문자열 (e.g., "react, nextjs")
+ * @param tagsString - 쉼표로 구분된 태그 문자열
  * @returns Promise<{ success: boolean; error?: string }> - 저장 성공 여부
  */
 export async function saveBookmarkAction(
     bookmarkData: ScrapedData,
-    // 2. 태그 문자열을 파라미터로 받도록 수정합니다.
     tagsString?: string
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getServerSession(authOptions);
@@ -63,13 +61,11 @@ export async function saveBookmarkAction(
 
   let tagNames = ['tag1', 'tag2'];
 
-  // 3. 쉼표로 구분된 태그 문자열을 파싱하고, 공백 제거, 소문자 변환, 빈 값 필터링을 수행합니다.
   tagNames = tagsString
       ? tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0)
       : [];
 
   try {
-    //    (하나라도 실패하면 모든 작업이 롤백되어 데이터 일관성을 보장합니다.)
     await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       //    Promise.all을 사용해 모든 태그 작업을 병렬로 처리하여 성능을 높입니다.
       const tagOperations = tagNames.map(name =>
@@ -98,7 +94,6 @@ export async function saveBookmarkAction(
     return { success: true };
   } catch (error) {
     console.error('Failed to save bookmark with tags:', error);
-    // 7. Prisma 에러 타입(PrismaClientKnownRequestError)을 사용하여 더 안전하게 에러를 처리합니다.
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return { success: false, error: '이미 저장된 링크입니다.' };
     }
@@ -106,7 +101,6 @@ export async function saveBookmarkAction(
   }
 }
 
-// deleteBookmarkAction 함수는 기존과 동일합니다.
 export async function deleteBookmarkAction(
     bookmarkId: number
 ): Promise<{ success: boolean; error?: string }> {
@@ -125,3 +119,63 @@ export async function deleteBookmarkAction(
   }
 }
 
+export async function updateBookmarkAction(
+    bookmarkId: number,
+    updatedData: { title: string; description: string },
+    tagsString?: string
+): Promise<{ success: boolean; error?: string }> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return { success: false, error: '로그인이 필요합니다.' };
+  }
+
+  if (!bookmarkId) {
+    return { success: false, error: '수정할 북마크 ID가 필요합니다.' };
+  }
+
+  // 태그 문자열 파싱
+  const tagNames = tagsString
+      ? tagsString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0)
+      : [];
+
+  try {
+    // 수정하려는 북마크가 현재 사용자의 것인지 확인
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    });
+
+    if (!bookmark || bookmark.userId !== session.user.id) {
+      return { success: false, error: '수정 권한이 없습니다.' };
+    }
+
+    // 트랜잭션을 사용하여 DB 작업의 일관성 보장
+    await prisma.$transaction(async (tx) => {
+      // 새로운 태그들을 찾거나 생성
+      const tagOperations = tagNames.map(name =>
+          tx.tag.upsert({
+            where: { name },
+            update: {},
+            create: { name },
+          })
+      );
+      const tags = await Promise.all(tagOperations);
+
+      // 북마크 업데이트 (기존 태그 연결은 모두 끊고 새로 연결)
+      await tx.bookmark.update({
+        where: { id: bookmarkId },
+        data: {
+          title: updatedData.title,
+          description: updatedData.description,
+          tags: {
+            set: tags.map(tag => ({ id: tag.id })),
+          },
+        },
+      });
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update bookmark:', error);
+    return { success: false, error: '북마크 수정 중 오류가 발생했습니다.' };
+  }
+}
