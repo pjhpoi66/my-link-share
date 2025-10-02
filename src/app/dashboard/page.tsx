@@ -23,6 +23,7 @@ export default async function DashboardPage({
 
   const params = await searchParams;
   const searchTerm = typeof params?.search === 'string' ? params.search : undefined;
+  const filterTag = typeof params?.tag === 'string' ? params.tag : undefined;
 
   const whereClause: Prisma.BookmarkWhereInput = {
     userId: session.user.id,
@@ -33,6 +34,13 @@ export default async function DashboardPage({
         { description: { contains: searchTerm, mode: Prisma.QueryMode.insensitive } }, // 설명 검색 (대소문자 무시)
       ],
     }),
+    ...(filterTag && {
+      tags: {
+        some: {
+          name: filterTag,
+        },
+      },
+    }),
   };
 
 
@@ -40,6 +48,9 @@ export default async function DashboardPage({
     where: whereClause, // 동적으로 생성된 where 조건을 사용합니다.
     orderBy: {
       createdAt: 'desc',
+    },
+    include: {
+      tags: true,
     },
   });
 
