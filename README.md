@@ -65,20 +65,17 @@ NEXT_PUBLIC_API_URL=http://localhost:8081
 npm run dev
 ```
 
-애플리케이션 접속:
-브라우저를 열고 http://localhost:3000 주소로 접속합니다.
-
 # 환경변수
 Database
-DATABASE_URL="[Production 데이터베이스 연결 URL]"
+- DATABASE_URL="[Production 데이터베이스 연결 URL]"
 
 NextAuth.js
-NEXTAUTH_URL="https://joonghopark-gemchat.com"
-NEXTAUTH_SECRET="[프로덕션용으로 생성한 강력한 시크릿 키]"
+- NEXTAUTH_URL="https://joonghopark-gemchat.com"
+- NEXTAUTH_SECRET="[프로덕션용으로 생성한 강력한 시크릿 키]"
 
 Google OAuth
-GOOGLE_CLIENT_ID="[프로덕션용 Google 클라이언트 ID]"
-GOOGLE_CLIENT_SECRET="[프로덕션용 Google 클라이언트 시크릿]"
+- GOOGLE_CLIENT_ID="[프로덕션용 Google 클라이언트 ID]"
+- GOOGLE_CLIENT_SECRET="[프로덕션용 Google 클라이언트 시크릿]"
 
 기타 필요한 환경 변수
-NODE_ENV=production
+- NODE_ENV=production
