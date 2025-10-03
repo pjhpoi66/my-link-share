@@ -12,8 +12,6 @@ https://share-link.joonghopark-gemchat.com/
 
 태그 시스템: 저장된 링크를 태그별로 분류하여 쉽게 검색 및 관리
 
-링크 공유: 특정 링크를 위한 고유 서브도메인(share-link.*)을 통한 공유 기능
-
 ## 기술 스택
 
 Frontend
