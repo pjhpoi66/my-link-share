@@ -20,7 +20,7 @@ export default function HomePage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!url.trim()) { setError('URL을 입력해주세요.'); return; }
+    if (!url.trim()) { setError('URL을 입력해주세요. '); return; }
     setIsLoading(true);
     setError(null);
     setScrapedData(null);
